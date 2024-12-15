@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.ac.seoil.front.board.mapper.ReplyMapper">
+    <resultMap id="selectReplyMap" type="kr.ac.seoil.front.board.vo.ReplyVO">
+        <result property="rno" column="RNO" />
+        <result property="bno" column="BNO" />
+        <result property="reply" column="REPLY" />
+        <result property="replyer" column="REPLYER" />
+        <result property="replyDate" column="REPLYDATE" />
+        <result property="updDate" column="UPDATEDATE" />
+    </resultMap>
+    
+    <insert id="insert">
+        <![CDATA[
+        INSERT INTO TBL_REPLY (
+            RNO
+            , BNO
+            , REPLY
+            , REPLYER
+        ) VALUES (
+            SEQ_REPLY.NEXTVAL
+            , #{bno}
+            , #{reply}
+            , #{replyer}
+        )
+        ]]>
+    </insert>
+    
+    <select id="select" resultMap="selectReplyMap">
+        <![CDATA[
+        SELECT RNO
+            , BNO
+            , REPLY
+            , REPLYER
+            , REPLYDATE
+            , UPDATEDATE
+        FROM TBL_REPLY
+        WHERE RNO = #{rno}
+        ]]>
+    </select>
+    
+    <delete id="delete">
+        <![CDATA[
+        DELETE FROM TBL_REPLY WHERE RNO = #{rno}
+        ]]>
+    </delete>
+    
+    <update id="update">
+        <![CDATA[
+        UPDATE TBL_REPLY SET
+            REPLY = #{reply}
+            , UPDATEDATE = SYSDATE
+        WHERE RNO = #{rno}
+        ]]>
+    </update>
+    
+    <select id="selectList" resultMap="selectReplyMap">
+        <![CDATA[
+        SELECT RNO
+            , BNO
+            , REPLY
+            , REPLYER
+            , REPLYDATE
+            , UPDATEDATE
+        FROM TBL_REPLY
+        WHERE BNO = #{bno}
+        ORDER BY RNO ASC
+        ]]>
+    </select>
+</mapper>

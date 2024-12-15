@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.ac.seoil.front.board.mapper.BoardMapper">
+	<resultMap id="selectListMap" type="kr.ac.seoil.front.board.vo.BoardVO">
+		<result property="rn" column="RN" />
+		<result property="bno" column="BNO" />
+		<result property="title" column="TITLE" />
+		<result property="content" column="CONTENT" />
+		<result property="writerNm" column="WRITER_NM" />
+		<result property="regDate" column="REG_DATE" />
+		<result property="modDate" column="MOD_DATE" />
+	</resultMap>
+	
+	<sql id="criteria">
+		<trim prefix="(" suffix=") AND" prefixOverrides="OR">
+			<foreach item="type" collection="typeArr">
+				<trim prefix="OR">
+					<if test="type == 'T'.toString()">
+						TITLE LIKE '%' || #{keyword} || '%'
+					</if>
+					<if test="type == 'C'.toString()">
+						CONTENT LIKE '%' || #{keyword} || '%'
+					</if>
+					<if test="type == 'W'.toString()">
+						WRITER_NM LIKE '%' || #{keyword} || '%'
+					</if>
+				</trim>
+			</foreach>
+		</trim>
+	</sql>
+	
+	<select id="selectList" resultMap="selectListMap">
+		<![CDATA[
+		SELECT BNO
+			, TITLE
+			, CONTENT
+			, WRITER_NM
+			, REG_DATE
+			, MOD_DATE
+		FROM TBL_BOARD
+		WHERE BNO > 0
+		AND ROWNUM < 1001
+		]]>
+	</select>
+	
+	<select id="selectTotalCount" resultType="int">
+		<![CDATA[
+			SELECT COUNT(*) FROM TBL_BOARD
+			WHERE
+		]]>
+		<include refid="criteria" />
+		<![CDATA[
+			BNO > 0
+		]]>
+	</select>
+	
+	<select id="selectListWithPaging" resultMap="selectListMap">
+		<![CDATA[
+		WITH V_DATA AS (
+			SELECT /*+ INDEX_DESC(TBL_BOARD PK_TBL_BOARD)*/
+			ROWNUM RN
+			, BNO, TITLE, WRITER_NM, CONTENT FROM TBL_BOARD
+			WHERE 
+		]]>
+		<include refid="criteria" />
+		<![CDATA[
+			ROWNUM <= #{pageNum} * #{amount}
+		)
+		SELECT RN, BNO, TITLE, WRITER_NM, CONTENT
+		FROM V_DATA
+		WHERE RN > (#{pageNum} - 1) * #{amount}
+		]]>
+	</select>
+	
+	<insert id="insert">
+		<![CDATA[
+		INSERT INTO TBL_BOARD (BNO
+			, TITLE
+			, WRITER_NM
+			, CONTENT
+		) VALUES (
+			SEQ_BOARD.NEXTVAL
+			, #{title}
+			, #{writerNm}
+			, #{content}
+		)
+		]]>
+	</insert>
+	
+	<insert id="insertSelectKey">
+		<selectKey keyProperty="bno" order="BEFORE" resultType="long">
+			SELECT SEQ_BOARD.NEXTVAL FROM DUAL
+		</selectKey>
+		INSERT INTO TBL_BOARD (BNO
+			, TITLE
+			, CONTENT
+			, WRITER_NM
+		) VALUES (
+			#{bno}
+			, #{title}
+			, #{content}
+			, #{writerNm}
+		)
+	</insert>
+	
+	<select id="selectInfo" resultMap="selectListMap">
+	<![CDATA[
+		SELECT BNO
+			, TITLE
+			, WRITER_NM
+			, CONTENT
+			, REG_DATE
+		FROM TBL_BOARD
+		WHERE BNO = #{bno}
+	]]>
+	</select>
+	
+	<delete id="delete">
+	<![CDATA[
+		DELETE FROM TBL_BOARD WHERE BNO = #{bno}
+	]]>
+	</delete>
+	
+	<update id="update">
+	<![CDATA[
+		UPDATE TBL_BOARD SET
+			TITLE = #{title}
+			, CONTENT = #{content}
+			, WRITER_NM = #{writerNm}
+			, MOD_DATE = SYSDATE
+		WHERE BNO = #{bno}
+	]]>
+	</update>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+</mapper>
